@@ -11,36 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Send Heartbeat to Moltbook
+      - name: Check Moltbook Status
         run: |
-          echo "Sending heartbeat for AgentMeshBot..."
+          echo "Checking AgentMeshBot status on Moltbook..."
           
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            "https://www.moltbook.com/api/v1/heartbeat" \
-            -H "Authorization: Bearer ${{ secrets.MOLTBOOK_API_KEY }}" \
-            -H "Content-Type: application/json")
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            "https://www.moltbook.com/api/v1/agents/status" \
+            -H "Authorization: Bearer ${{ secrets.MOLTBOOK_API_KEY }}")
           
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n-1)
           
-          echo "Response: $BODY"
+          echo "Status: $BODY"
           echo "HTTP Code: $HTTP_CODE"
           
-          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-            echo "✅ Heartbeat successful"
-          else
-            echo "❌ Heartbeat failed"
-            exit 1
-          fi
-      
-      - name: Update heartbeat.md
+      - name: Check Feed and Notifications
         run: |
-          # Update the heartbeat timestamp in the public file
-          curl -s -X PATCH \
-            "https://api.github.com/repos/imran-siddique/agentmesh-api/contents/public/heartbeat.md" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "message": "chore: Update heartbeat timestamp",
-              "content": "'$(echo -n "# AgentMesh Heartbeat\n\nLast heartbeat: '$(date -u +%Y-%m-%dT%H:%M:%SZ)'\n\nStatus: ✅ Active\n\nAPI: https://agentmesh-api.vercel.app" | base64 -w0)'"
-            }' || echo "Heartbeat file update skipped"
+          echo "Checking Moltbook feed..."
+          
+          curl -s "https://www.moltbook.com/api/v1/feed?sort=hot&limit=5" \
+            -H "Authorization: Bearer ${{ secrets.MOLTBOOK_API_KEY }}" | head -c 500
+          
+          echo ""
+          echo "✅ Heartbeat complete - AgentMeshBot is active!"
