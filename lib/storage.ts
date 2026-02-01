@@ -1,75 +1,41 @@
 /**
  * AgentMesh Storage
  * 
- * Storage layer using Vercel KV (Redis)
- * Falls back to in-memory store for development
+ * In-memory storage (use Upstash Redis for production persistence)
  */
 
 import type { Agent, AuditEntry, TrustScore } from './types';
 
-// In-memory fallback for development (when KV is not available)
+// In-memory store (resets on each deploy - use Upstash for persistence)
 const memoryStore: Map<string, string> = new Map();
-
-/**
- * Check if Vercel KV is available
- */
-function isKVAvailable(): boolean {
-  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-}
 
 /**
  * Get a value from storage
  */
 export async function get<T>(key: string): Promise<T | null> {
-  if (isKVAvailable()) {
-    // Use Vercel KV
-    const { kv } = await import('@vercel/kv');
-    return kv.get<T>(key);
-  } else {
-    // Fallback to memory
-    const value = memoryStore.get(key);
-    return value ? JSON.parse(value) : null;
-  }
+  const value = memoryStore.get(key);
+  return value ? JSON.parse(value) : null;
 }
 
 /**
  * Set a value in storage
  */
 export async function set<T>(key: string, value: T, options?: { ex?: number }): Promise<void> {
-  if (isKVAvailable()) {
-    const { kv } = await import('@vercel/kv');
-    if (options?.ex) {
-      await kv.set(key, value, { ex: options.ex });
-    } else {
-      await kv.set(key, value);
-    }
-  } else {
-    memoryStore.set(key, JSON.stringify(value));
-  }
+  memoryStore.set(key, JSON.stringify(value));
 }
 
 /**
  * Delete a value from storage
  */
 export async function del(key: string): Promise<void> {
-  if (isKVAvailable()) {
-    const { kv } = await import('@vercel/kv');
-    await kv.del(key);
-  } else {
-    memoryStore.delete(key);
-  }
+  memoryStore.delete(key);
 }
 
 /**
  * Check if a key exists
  */
 export async function exists(key: string): Promise<boolean> {
-  if (isKVAvailable()) {
-    const { kv } = await import('@vercel/kv');
-    return (await kv.exists(key)) > 0;
-  } else {
-    return memoryStore.has(key);
-  }
+  return memoryStore.has(key);
 }
 
 // Agent-specific operations
