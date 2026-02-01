@@ -7,7 +7,9 @@
     "dev": "vercel dev",
     "build": "tsc",
     "deploy": "vercel --prod",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'No tests configured yet' && exit 0"
   },
   "dependencies": {
     "@vercel/kv": "^1.0.0",
