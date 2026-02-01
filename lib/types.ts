@@ -55,12 +55,16 @@ export interface HandshakeRequest {
 
 export interface HandshakeResponse {
   verified: boolean;
-  peer_did: string;
+  peer_did?: string;
   trust_score: number;
+  tier?: string;
   capabilities_granted: string[];
-  challenge_response: string;
-  signature: string;
-  expires_at: string;
+  challenge_response?: string;
+  challenge?: string;
+  signature?: string;
+  expires_at?: string;
+  expires_in?: number;
+  policy_reference?: string;
   error?: string;
 }
 
@@ -84,6 +88,7 @@ export interface AuditEntry {
   action: string;
   outcome: 'success' | 'failure' | 'denied';
   timestamp: string;
+  hash: string;
   entry_hash: string;
   previous_hash: string;
   data: Record<string, unknown>;

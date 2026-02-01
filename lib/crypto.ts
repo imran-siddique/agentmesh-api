@@ -87,6 +87,15 @@ export function sign(data: string, privateKey: string): string {
 }
 
 /**
+ * Sign a message with a server key (for API responses)
+ */
+export function signMessage(data: string): string {
+  // Server-side signing with a fixed key (in production, use env variable)
+  const serverKey = process.env.SIGNING_KEY || 'agentmesh-server-key-demo';
+  return sha256(`${data}:${serverKey}`);
+}
+
+/**
  * Verify signature (simplified for demo)
  */
 export function verifySignature(data: string, signature: string, publicKey: string): boolean {

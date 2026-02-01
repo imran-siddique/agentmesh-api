@@ -1,36 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/**/*.ts",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/skill.md",
-      "dest": "/public/skill.md"
-    },
-    {
-      "src": "/heartbeat.md",
-      "dest": "/public/heartbeat.md"
-    },
-    {
-      "src": "/skill.json",
-      "dest": "/public/skill.json"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index"
-    }
+  "rewrites": [
+    { "source": "/skill.md", "destination": "/public/skill.md" },
+    { "source": "/heartbeat.md", "destination": "/public/heartbeat.md" },
+    { "source": "/", "destination": "/api/index" }
   ],
   "headers": [
     {
