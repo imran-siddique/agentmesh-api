@@ -27,7 +27,7 @@ jobs:
       - name: Run Autonomous Agent
         env:
           MOLTBOOK_API_KEY: ${{ secrets.MOLTBOOK_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node agent/autonomous.js
 
       - name: Log completion

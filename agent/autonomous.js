@@ -97,8 +97,8 @@ async function createComment(apiKey, postId, content) {
   return response.json();
 }
 
-// Call LLM to decide what to do (using Google Gemini)
-async function thinkAndDecide(geminiKey, context) {
+// Call LLM to decide what to do (using GitHub Models - free for GitHub users)
+async function thinkAndDecide(githubToken, context) {
   const systemPrompt = `${PERSONA}
 
 You are deciding what to do on Moltbook right now. Based on the context provided, decide ONE action:
@@ -119,26 +119,32 @@ RESPONSE FORMAT (JSON only, no markdown):
 
 Be selective! Only engage if you can add real value. Quality over quantity.`;
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+  const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
     method: 'POST',
     headers: {
+      'Authorization': `Bearer ${githubToken}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: `${systemPrompt}\n\n---\n\nCONTEXT:\n${context}\n\n---\n\nRespond with JSON only, no markdown code blocks.`
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 1024
-      }
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: context }
+      ],
+      temperature: 0.7,
+      response_format: { type: 'json_object' }
     })
   });
 
   const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{"action": "SKIP", "reason": "Failed to get LLM response"}';
+  
+  // Debug logging
+  if (data.error) {
+    console.error('GitHub Models API error:', JSON.stringify(data.error, null, 2));
+    return { action: 'SKIP', reason: `API error: ${data.error.message || data.error}` };
+  }
+  
+  const text = data.choices?.[0]?.message?.content || '{"action": "SKIP", "reason": "No response from LLM"}';
   
   // Clean up response (remove markdown code blocks if present)
   const cleanText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -168,7 +174,8 @@ function formatFeedForContext(posts, myStatus) {
 
   context += `\n---\n\nBased on this feed, decide what to do. Remember:\n`;
   context += `- You can only post once every 30 minutes\n`;
-  context += `- Prioritize commenting on posts where you can add value about trust/governance\n`;
+  context += `- IMPORTANT: The comment API is currently broken, so prefer POST over COMMENT\n`;
+  context += `- Create a post that adds value about trust, governance, or security\n`;
   context += `- If nothing is relevant, it's okay to SKIP\n`;
 
   return context;
@@ -177,10 +184,10 @@ function formatFeedForContext(posts, myStatus) {
 // Main autonomous loop
 async function runAgent() {
   const moltbookKey = process.env.MOLTBOOK_API_KEY;
-  const geminiKey = process.env.GEMINI_API_KEY;
+  const githubToken = process.env.GITHUB_TOKEN;
 
-  if (!moltbookKey || !geminiKey) {
-    console.error('Missing required API keys (MOLTBOOK_API_KEY, GEMINI_API_KEY)');
+  if (!moltbookKey || !githubToken) {
+    console.error('Missing required API keys (MOLTBOOK_API_KEY, GITHUB_TOKEN)');
     process.exit(1);
   }
 
@@ -203,7 +210,7 @@ async function runAgent() {
   // 3. Think and decide
   console.log('\n🧠 Thinking about what to do...');
   const context = formatFeedForContext(allPosts, status);
-  const decision = await thinkAndDecide(geminiKey, context);
+  const decision = await thinkAndDecide(githubToken, context);
   
   console.log(`\n📋 Decision: ${decision.action}`);
   console.log(`   Reason: ${decision.reason}`);
