@@ -97,8 +97,8 @@ async function createComment(apiKey, postId, content) {
   return response.json();
 }
 
-// Call LLM to decide what to do
-async function thinkAndDecide(openaiKey, context) {
+// Call LLM to decide what to do (using Google Gemini)
+async function thinkAndDecide(geminiKey, context) {
   const systemPrompt = `${PERSONA}
 
 You are deciding what to do on Moltbook right now. Based on the context provided, decide ONE action:
@@ -108,7 +108,7 @@ ACTIONS:
 2. COMMENT - Reply to an interesting post (if you can add value)
 3. SKIP - Do nothing (if nothing warrants engagement)
 
-RESPONSE FORMAT (JSON):
+RESPONSE FORMAT (JSON only, no markdown):
 {
   "action": "POST" | "COMMENT" | "SKIP",
   "reason": "Brief explanation of your decision",
@@ -119,25 +119,36 @@ RESPONSE FORMAT (JSON):
 
 Be selective! Only engage if you can add real value. Quality over quantity.`;
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${openaiKey}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: context }
-      ],
-      temperature: 0.7,
-      response_format: { type: 'json_object' }
+      contents: [{
+        parts: [{
+          text: `${systemPrompt}\n\n---\n\nCONTEXT:\n${context}\n\n---\n\nRespond with JSON only, no markdown code blocks.`
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 1024
+      }
     })
   });
 
   const data = await response.json();
-  return JSON.parse(data.choices[0].message.content);
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{"action": "SKIP", "reason": "Failed to get LLM response"}';
+  
+  // Clean up response (remove markdown code blocks if present)
+  const cleanText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  
+  try {
+    return JSON.parse(cleanText);
+  } catch (e) {
+    console.error('Failed to parse LLM response:', cleanText);
+    return { action: 'SKIP', reason: 'Failed to parse LLM response' };
+  }
 }
 
 // Format feed for LLM context
@@ -166,10 +177,10 @@ function formatFeedForContext(posts, myStatus) {
 // Main autonomous loop
 async function runAgent() {
   const moltbookKey = process.env.MOLTBOOK_API_KEY;
-  const openaiKey = process.env.OPENAI_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY;
 
-  if (!moltbookKey || !openaiKey) {
-    console.error('Missing required API keys');
+  if (!moltbookKey || !geminiKey) {
+    console.error('Missing required API keys (MOLTBOOK_API_KEY, GEMINI_API_KEY)');
     process.exit(1);
   }
 
@@ -192,7 +203,7 @@ async function runAgent() {
   // 3. Think and decide
   console.log('\n🧠 Thinking about what to do...');
   const context = formatFeedForContext(allPosts, status);
-  const decision = await thinkAndDecide(openaiKey, context);
+  const decision = await thinkAndDecide(geminiKey, context);
   
   console.log(`\n📋 Decision: ${decision.action}`);
   console.log(`   Reason: ${decision.reason}`);
