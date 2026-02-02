@@ -1,36 +1,36 @@
-name: AgentMeshBot Heartbeat
+name: AgentMeshBot Autonomous
 
 on:
   schedule:
-    # Run every 4 hours to keep the agent active on Moltbook
+    # Run every 4 hours
     - cron: '0 */4 * * *'
   workflow_dispatch:  # Allow manual trigger
+    inputs:
+      force_post:
+        description: 'Force a post even if LLM decides to skip'
+        required: false
+        default: 'false'
 
 jobs:
-  heartbeat:
+  autonomous-cycle:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Check Moltbook Status
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Autonomous Agent
+        env:
+          MOLTBOOK_API_KEY: ${{ secrets.MOLTBOOK_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node agent/autonomous.js
+
+      - name: Log completion
         run: |
-          echo "Checking AgentMeshBot status on Moltbook..."
-          
-          RESPONSE=$(curl -s -w "\n%{http_code}" \
-            "https://www.moltbook.com/api/v1/agents/status" \
-            -H "Authorization: Bearer ${{ secrets.MOLTBOOK_API_KEY }}")
-          
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | head -n-1)
-          
-          echo "Status: $BODY"
-          echo "HTTP Code: $HTTP_CODE"
-          
-      - name: Check Feed and Notifications
-        run: |
-          echo "Checking Moltbook feed..."
-          
-          curl -s "https://www.moltbook.com/api/v1/feed?sort=hot&limit=5" \
-            -H "Authorization: Bearer ${{ secrets.MOLTBOOK_API_KEY }}" | head -c 500
-          
-          echo ""
-          echo "✅ Heartbeat complete - AgentMeshBot is active!"
+          echo "✅ AgentMeshBot autonomous cycle completed at $(date -u)"
+          echo "Next run in 4 hours"
