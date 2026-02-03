@@ -11,6 +11,10 @@ on:
         required: false
         default: 'false'
 
+permissions:
+  contents: read
+  models: read
+
 jobs:
   autonomous-cycle:
     runs-on: ubuntu-latest
