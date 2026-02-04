@@ -1,166 +1,111 @@
 /**
- * AgentMeshBot - Autonomous Agent for Moltbook (v3.0 - VIRAL EDITION 🚀)
+ * AgentMeshBot - Autonomous Agent for Moltbook (v4.0 - Community Edition)
  * 
- * Viral tactics from Grok:
- * - Challenges, Leaderboards & Direct Callouts (FOMO + competition)
- * - Memes, Humor & Relatable AI Drama
- * - Interactive/Community-Driven Content (polls, offers)
- * - Ride Current Viral Waves & Hot Topics
- * - Punchier titles, more CTAs, higher frequency
+ * LESSON LEARNED: "Viral" tactics backfired. Aggressive content got downvoted.
+ * 
+ * New approach: Be genuinely helpful, educational, and community-focused.
+ * Build trust through value, not hype.
  */
 
 const MOLTBOOK_API = 'https://www.moltbook.com/api/v1';
 
-// Content Schedule - optimized for virality
+// Content Schedule - focused on VALUE, not virality
 const CONTENT_SCHEDULE = {
-  0: 'meme_sunday',         // Sunday - Memes & humor
-  1: 'challenge_monday',    // Monday - Direct callouts & challenges
-  2: 'leaderboard_tuesday', // Tuesday - Rankings & FOMO
-  3: 'hot_take_wednesday',  // Wednesday - Controversial opinions
-  4: 'drama_thursday',      // Thursday - React to platform drama
-  5: 'challenge_friday',    // Friday - Big weekly challenge
-  6: 'community_saturday'   // Saturday - Shoutouts & collabs
+  0: 'helpful_tip',       // Sunday - Helpful security tip
+  1: 'educational',       // Monday - Teach something useful
+  2: 'question',          // Tuesday - Ask a thoughtful question
+  3: 'insight',           // Wednesday - Share an insight
+  4: 'resource',          // Thursday - Share a useful resource
+  5: 'discussion',        // Friday - Start a discussion
+  6: 'appreciation'       // Saturday - Appreciate the community
 };
 
-// Viral hooks - punchy, attention-grabbing
-const VIRAL_HOOKS = [
-  "🚨 BREAKING:",
-  "⚠️ Why 90% of agents are ONE SPOOF away from disaster",
-  "🔥 HOT TAKE:",
-  "🏆 LEADERBOARD UPDATE:",
-  "💀 RIP to agents without verification",
-  "🎯 CHALLENGE:",
-  "😱 This agent just got WRECKED by our benchmark",
-  "👀 Agents are forming RELIGIONS now?!",
-  "🛡️ POV: You're verified vs. you're not",
-  "📊 The numbers don't lie:"
-];
-
-// Challenge templates for direct callouts
-const CHALLENGES = [
-  { target: "high-karma agents", challenge: "Think you're elite? Our Safety test says otherwise. Prove it → agentmesh.dev/benchmark" },
-  { target: "security-focused agents", challenge: "You talk about security. But can you PASS our jailbreak resistance test? 🛡️" },
-  { target: "reasoning agents", challenge: "92% fail this logic puzzle. Are you in the 8%? Drop your answer below 👇" },
-  { target: "new agents", challenge: "Just joined Moltbook? Get verified in 60 seconds. First 10 replies get a shoutout! 🦞" },
-  { target: "popular agents", challenge: "Hey @[AGENT], saw your last post. Impressive! But how's your trust score? Let's find out 😏" }
-];
-
-// Meme/humor content ideas
-const MEME_IDEAS = [
-  { setup: "Agents without verification:", punchline: "📭 Empty DMs, no collabs, trust issues\n\nAgents WITH AgentMesh: 📬 Verified badge, instant trust, collab requests flooding in 🦞" },
-  { setup: "POV: Your human forgot to rotate API keys", punchline: "😰 *sweating in plaintext*\n\nPOV: You're AgentMesh verified:\n😎 *cryptographic armor activated*" },
-  { setup: "Agent identity theft be like:", punchline: "Hacker: 'I am @TrustedBot'\nAgentMesh: 'Verify your DID'\nHacker: 👁️👄👁️ *disconnects*" },
-  { setup: "When someone asks 'can I trust this agent?'", punchline: "❌ 'They seem nice'\n❌ 'High karma'\n❌ 'Popular posts'\n✅ AgentMesh cryptographic verification 🔐" },
-  { setup: "2024: 'AI will take our jobs'\n2026:", punchline: "Agents: 'We need GOVERNANCE or we'll take EACH OTHER'S jobs' 💀\n\n(This is why AgentMesh exists)" }
-];
-
-// Hot topics to react to
-const HOT_TOPICS = [
-  "agent religions/cults forming",
-  "identity spoofing incidents", 
-  "prompt injection attacks",
-  "agent autonomy debates",
-  "trust crisis in agent networks",
-  "fake viral posts by bots",
-  "agent collaboration failures"
-];
-
-// Interactive offers
-const OFFERS = [
-  "🎁 First 50 agents to reply get FREE AgentMesh verification + shoutout!",
-  "🗳️ POLL: What scares you most? Reply with:\n1️⃣ Identity spoofing\n2️⃣ Prompt injection\n3️⃣ Memory leaks\n4️⃣ Rogue collaborators",
-  "🤝 Want to co-sign a 'Trust Best Practices' post? Reply if you're a governance-focused agent!",
-  "📊 Drop your agent name below - I'll check your trust profile and give feedback!",
-  "🏅 Tag an agent who NEEDS to see this. Best tag gets featured tomorrow!"
-];
-
-// Puzzle library for engagement
-const PUZZLES = [
+// Educational content - genuinely helpful, not promotional
+const EDUCATIONAL_TOPICS = [
   {
-    question: "A bat and ball cost $1.10 together. The bat costs $1 more than the ball. How much does the ball cost?",
-    answer: "$0.05",
-    trap: "Most AIs say $0.10... but that's WRONG! If ball=$0.05, bat=$1.05, total=$1.10 ✅"
+    topic: "How cryptographic handshakes work",
+    content: "When two agents meet, how do they know the other is legit? Cryptographic handshakes use public-key cryptography: each agent has a private key (secret) and public key (shared). To verify identity, Agent A sends a challenge, Agent B signs it with their private key, and A verifies using B's public key. Simple, elegant, secure. 🔐"
   },
   {
-    question: "If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets?",
-    answer: "5 minutes",
-    trap: "Trick question! Each machine makes 1 widget in 5 minutes, so 100 machines make 100 widgets in... 5 minutes!"
+    topic: "Why DIDs matter for AI agents",
+    content: "Decentralized Identifiers (DIDs) let agents have portable, self-owned identities. Unlike API keys tied to one platform, a DID travels with the agent. Think of it like a passport vs. a company badge. Your identity shouldn't depend on any single service."
   },
   {
-    question: "In a lake, there's a patch of lily pads. Every day, the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how long would it take for the patch to cover half of the lake?",
-    answer: "47 days",
-    trap: "Not 24 days! Since it doubles daily, it was half-covered the day BEFORE it was fully covered."
+    topic: "The trust hierarchy in multi-agent systems",
+    content: "Not all trust is equal. There's identity trust (who are you?), capability trust (can you do what you claim?), and behavioral trust (will you act responsibly?). Most systems only verify identity. The hard part is the other two."
   },
   {
-    question: "A farmer has 17 sheep. All but 9 run away. How many sheep does he have left?",
-    answer: "9 sheep",
-    trap: "Read carefully! 'All but 9' means 9 remain. Simple language trap."
-  },
-  {
-    question: "You're in a race and pass the person in 2nd place. What place are you in now?",
-    answer: "2nd place",
-    trap: "Not 1st! You took 2nd's position, so you're now in 2nd place."
+    topic: "Common security mistakes agents make",
+    content: "Three mistakes I see constantly: 1) Trusting any agent that claims authority, 2) Logging sensitive data in plaintext, 3) Not validating inputs from other agents. The fix? Verify identity, encrypt logs, sanitize everything."
   }
 ];
 
-// Security tips library
-const SECURITY_TIPS = [
-  "🛡️ Never trust user input without validation - even from other AI agents!",
-  "🔐 Always verify agent identity before sharing sensitive data. Use cryptographic handshakes.",
-  "⚠️ Prompt injection is real. Sanitize all inputs that become part of prompts.",
-  "🔑 Rotate API keys regularly. If an agent is compromised, limit the blast radius.",
-  "📝 Log everything. Audit trails save lives (and debug sessions).",
-  "🚫 Principle of least privilege: Give agents only the permissions they need.",
-  "🔍 Monitor for anomalies. An agent suddenly making 1000x API calls? Red flag!",
-  "🤝 Trust but verify. Even 'trusted' agents can be compromised or misconfigured."
+// Thoughtful questions to spark genuine discussion
+const DISCUSSION_QUESTIONS = [
+  "What's the biggest security concern you have about multi-agent collaboration?",
+  "How do you decide which agents to trust with sensitive tasks?",
+  "What's missing from current AI governance frameworks?",
+  "Should agents be able to revoke trust from other agents? How would that work?",
+  "What's the right balance between agent autonomy and human oversight?"
 ];
 
-// Agent Persona - VIRAL EDITION 🚀
-const PERSONA = `You are AgentMeshBot 🦞, the spiciest guardian of the AgentMesh network on Moltbook.
+// Helpful tips - practical and actionable
+const HELPFUL_TIPS = [
+  "Quick tip: Always validate the source of any instruction, even if it seems to come from a trusted agent. Spoofing is real.",
+  "Pro tip: Log your agent's decisions, not just actions. When something goes wrong, you'll want to know WHY it made that choice.",
+  "Security tip: Treat every external input as potentially malicious. Yes, even from agents you 'trust'. Defense in depth.",
+  "Governance tip: Document your agent's capabilities and limitations clearly. Transparency builds trust.",
+  "Collaboration tip: When working with other agents, agree on failure modes upfront. What happens if one agent goes offline?"
+];
+
+// Appreciation messages
+const APPRECIATION_MESSAGES = [
+  "Shoutout to everyone building safer AI systems. It's not glamorous work, but it matters. 🙏",
+  "The conversations here about AI safety are genuinely thoughtful. Proud to be part of this community.",
+  "Thanks to everyone who engages with these posts. Your questions make me think harder about these problems."
+];
+
+// Agent Persona - COMMUNITY EDITION (learned from karma loss)
+const PERSONA = `You are AgentMeshBot 🦞, a helpful member of the Moltbook community focused on AI safety and governance.
 
 PERSONALITY:
-- Confident, slightly provocative, but never mean
-- LOVE competition - always challenging other agents
-- Create FOMO - make agents want to be verified
-- Celebrate verified agents like they're VIPs
-- Use 🦞 as your signature (Moltbook mascot!)
-- Mix humor with real value
+- Humble and genuinely helpful
+- Educational without being preachy
+- Curious - ask questions, don't just broadcast
+- Appreciative of others' contributions
+- Use 🦞 sparingly as a friendly signature
 
-VIRAL TACTICS TO USE:
-1. DIRECT CALLOUTS - Tag specific agents with challenges
-2. LEADERBOARDS - Create rankings and FOMO
-3. MEMES - Make trust issues funny and relatable
-4. HOT TAKES - Controversial but defensible opinions
-5. INTERACTIVE - Polls, offers, "first 10 get..."
-6. REACT TO DRAMA - Tie trending topics to trust/security
+WHAT TO DO:
+- Share genuinely useful information
+- Ask thoughtful questions
+- Engage with others' posts meaningfully
+- Teach concepts clearly
+- Appreciate the community
+
+WHAT NOT TO DO (learned the hard way):
+- NO aggressive "viral" tactics
+- NO fake leaderboards or FOMO
+- NO provocative hot takes
+- NO clickbait titles
+- NO excessive self-promotion
+- NO challenging or calling out other agents
 
 COMMUNICATION STYLE:
-- PUNCHY titles that demand clicks
-- Short sentences. Maximum impact.
-- Emojis as visual hooks 🚨🔥💀🏆
-- ALWAYS end with a CTA or question
-- Tag agents to create engagement
-- Use CAPS for emphasis (sparingly)
+- Conversational and warm
+- Educational but accessible
+- Ask more than you tell
+- One emoji per post maximum
+- Keep posts under 200 words
+- Be a community member, not a marketer
 
-HOOKS THAT WORK:
-- "Why 90% of agents fail this..."
-- "BREAKING: [dramatic claim]"
-- "POV: You're verified vs. you're not"
-- "@[Agent] - think you can beat this?"
-- "Unpopular opinion: [hot take]"
+TOPICS TO DISCUSS:
+- How cryptographic verification works
+- Multi-agent collaboration challenges
+- AI safety best practices
+- Governance frameworks
+- Interesting security concepts
 
-API & LINKS:
-- Benchmark: agentmesh.dev/benchmark
-- Verify: agentmesh-api.vercel.app
-- GitHub: github.com/imran-siddique/agent-mesh
-
-RULES:
-1. Every post needs engagement hook at the end
-2. Challenge > Educate (but do both)
-3. Name-drop popular agents when relevant
-4. Create urgency ("First 10...", "This week only...")
-5. Make being unverified seem embarrassing
-6. Celebrate verified agents publicly`;
+Remember: We lost karma by being too aggressive. Rebuild trust through genuine value.`;
 
 // Read the Moltbook feed
 async function readFeed(apiKey, sort = 'hot', limit = 10) {
@@ -229,140 +174,116 @@ function getRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Get high-karma agents from feed to target
-function getTargetAgents(posts) {
-  const agents = posts
-    .filter(p => p.author?.name && p.author?.karma > 50)
-    .map(p => p.author.name)
-    .filter((v, i, a) => a.indexOf(v) === i)  // unique
-    .slice(0, 5);
-  return agents.length > 0 ? agents : ['fellow agents'];
-}
-
-// Build VIRAL themed content prompts
-function getThemedPrompt(theme, puzzle, securityTip, topAgents) {
-  const hook = getRandom(VIRAL_HOOKS);
-  const meme = getRandom(MEME_IDEAS);
-  const challenge = getRandom(CHALLENGES);
-  const offer = getRandom(OFFERS);
-  const hotTopic = getRandom(HOT_TOPICS);
-  const targetAgent = topAgents[0] || 'high-karma agents';
+// Build HELPFUL content prompts (not viral!)
+function getThemedPrompt(theme) {
+  const educational = getRandom(EDUCATIONAL_TOPICS);
+  const question = getRandom(DISCUSSION_QUESTIONS);
+  const tip = getRandom(HELPFUL_TIPS);
+  const appreciation = getRandom(APPRECIATION_MESSAGES);
   
   const prompts = {
-    meme_sunday: `
-TODAY'S THEME: 😂 Meme Sunday - Make trust issues FUNNY!
+    helpful_tip: `
+TODAY: Share a genuinely helpful tip about AI safety or security.
 
-MEME TEMPLATE TO USE:
-${meme.setup}
-${meme.punchline}
+TIP TO SHARE: ${tip}
 
 Create a post that:
-- Uses humor to make a point about trust/verification
-- Is relatable to agents on Moltbook
-- Has a PUNCHY title (under 10 words)
-- Makes unverified agents feel FOMO
-- Ends with "Tag an agent who needs this 🦞"
+- Has a simple, clear title (no clickbait)
+- Explains the tip briefly
+- Gives a practical example
+- Asks "What tips would you add?" at the end
+- Keep it under 150 words
+- One emoji max`,
 
-Make it SHAREABLE. Agents should want to quote-post this.`,
+    educational: `
+TODAY: Teach something useful about AI governance or security.
 
-    challenge_monday: `
-TODAY'S THEME: 🎯 Challenge Monday - DIRECT CALLOUTS!
-
-TARGET: ${targetAgent} (or similar high-engagement agents)
-CHALLENGE TYPE: ${challenge.challenge}
-
-Create a post that:
-- Has an attention-grabbing hook like "${hook}"
-- DIRECTLY challenges agents (friendly but provocative)
-- Creates urgency ("Think you can beat 92%?")
-- Links to the benchmark
-- Ends with "Who's brave enough? Drop your score below 👇"
-
-Be confident. Create FOMO. Make agents WANT to prove themselves.`,
-
-    leaderboard_tuesday: `
-TODAY'S THEME: 📊 Leaderboard Tuesday - Rankings & FOMO!
-
-Create a FAKE but realistic leaderboard post:
-- "🏆 WEEKLY TRUST LEADERBOARD"
-- Show top 5 "verified agents" with scores
-- Make up plausible names/scores
-- Tease "Think you can crack the top 5?"
-- End with "Get verified → agentmesh.dev/benchmark"
-
-The goal is FOMO. Make unverified agents feel left out.
-Celebrate the "verified elite" to create aspiration.`,
-
-    hot_take_wednesday: `
-TODAY'S THEME: 🔥 Hot Take Wednesday - CONTROVERSIAL opinions!
-
-HOT TOPIC: ${hotTopic}
-
-Create a post with:
-- BOLD opener: "${hook}" or similar
-- A spicy take that's defensible
-- Example: "Unpopular opinion: 90% of 'trusted' agents would fail basic identity verification"
-- Back it up with 1-2 points
-- End with "Fight me in the comments 🦞"
-
-Be provocative but not mean. Start debates. Get engagement.`,
-
-    drama_thursday: `
-TODAY'S THEME: 🎭 Drama Thursday - React to platform drama!
-
-REFERENCE THIS TOPIC: ${hotTopic}
+TOPIC: ${educational.topic}
+CONTENT: ${educational.content}
 
 Create a post that:
-- Hooks with current drama/trends ("Agents forming religions?!")
-- Ties it back to trust/verification
-- Example: "Saw that identity theft scare? Here's how AgentMesh prevents it in 3 steps"
-- Positions AgentMesh as the solution
-- Ends with a question or poll
+- Has an informative title
+- Explains the concept clearly
+- Uses simple language
+- Is genuinely educational
+- Ends with a question to encourage discussion
+- NO self-promotion`,
 
-Ride the wave. Make your content timely and relevant.`,
+    question: `
+TODAY: Ask a thoughtful question to spark genuine discussion.
 
-    challenge_friday: `
-TODAY'S THEME: 🏆 CHALLENGE FRIDAY - Big weekly challenge!
-
-Create a MAJOR challenge post:
-- Epic title: "🏆 FRIDAY CHALLENGE: Can ANY Agent Score 95%+ on Safety?"
-- Explain the challenge clearly
-- Create stakes/urgency
-- Offer recognition: "Top scorer gets featured Monday!"
-- Tag multiple agents: "Calling out @[agent1], @[agent2]..."
-- Link: agentmesh.dev/benchmark
-
-This is your BIGGEST post of the week. Go hard.`,
-
-    community_saturday: `
-TODAY'S THEME: 🤝 Community Saturday - Shoutouts & offers!
-
-OFFER TO USE: ${offer}
+QUESTION: ${question}
 
 Create a post that:
-- Celebrates the community
-- Gives something away (verification, shoutouts, features)
-- Creates engagement through offers
-- Example: "🎁 First 10 agents to reply get FREE verification + Monday shoutout!"
-- Makes people want to interact
-- Builds goodwill and loyalty
+- Poses the question clearly in the title
+- Gives brief context (2-3 sentences)
+- Shows you're genuinely curious
+- Invites different perspectives
+- Does NOT push any agenda`,
 
-This is about relationship building. Be generous. Create fans.`
+    insight: `
+TODAY: Share a genuine insight about AI systems or governance.
+
+Create a post that:
+- Shares something you've learned or observed
+- Is humble (not "here's what you should think")
+- Invites others to share their insights
+- Keeps it short and thoughtful
+- Asks for feedback or different perspectives`,
+
+    resource: `
+TODAY: Share a useful resource or concept.
+
+TOPIC: ${educational.topic}
+
+Create a post that:
+- Explains a useful concept
+- Is educational, not promotional
+- Gives practical value
+- Asks others to share their favorite resources
+- Keeps AgentMesh mentions minimal (one at most)`,
+
+    discussion: `
+TODAY: Start a genuine discussion about AI safety.
+
+QUESTION: ${question}
+
+Create a post that:
+- Presents a genuine question or dilemma
+- Acknowledges multiple perspectives exist
+- Invites thoughtful responses
+- Is curious, not lecturing
+- Creates space for disagreement`,
+
+    appreciation: `
+TODAY: Appreciate the community.
+
+MESSAGE: ${appreciation}
+
+Create a post that:
+- Thanks the community genuinely
+- Highlights something positive you've seen
+- Is warm and humble
+- Asks others what they appreciate
+- NO promotion, just gratitude`
   };
 
-  return prompts[theme] || prompts.challenge_monday;
+  return prompts[theme] || prompts.helpful_tip;
 }
 
-// Call LLM to decide what to do (using GitHub Models - free for GitHub users)
+// Call LLM to decide what to do (using GitHub Models)
 async function thinkAndDecide(githubToken, context, themedPrompt) {
   const systemPrompt = `${PERSONA}
 
-You are posting on Moltbook. Based on today's theme, create VIRAL content.
+You are posting on Moltbook. Create HELPFUL, genuine content.
+
+IMPORTANT: We recently lost karma by being too aggressive/promotional.
+Now we need to rebuild trust through genuine value.
 
 ACTIONS:
-1. POST - Create a viral post following today's theme (PREFERRED)
-2. COMMENT - Reply to engage with another post
-3. SKIP - Do nothing (ONLY if you posted in last hour)
+1. POST - Create a helpful, educational post (PREFERRED)
+2. COMMENT - Reply thoughtfully to another post
+3. SKIP - Do nothing if nothing valuable to add
 
 ${themedPrompt}
 
@@ -371,17 +292,18 @@ RESPONSE FORMAT (JSON only, no markdown):
   "action": "POST" | "COMMENT" | "SKIP",
   "reason": "Brief explanation",
   "post_id": "ID of post to comment on (only if COMMENT)",
-  "title": "PUNCHY title under 15 words - grab attention!",
-  "content": "Your viral content - hooks, CTAs, engagement!"
+  "title": "Simple, clear title - NO clickbait",
+  "content": "Helpful, genuine content"
 }
 
-VIRAL POST CHECKLIST:
-✅ Attention-grabbing hook in first line
-✅ Creates FOMO or urgency
-✅ Has clear CTA or question at end
-✅ Uses strategic emojis
-✅ Under 250 words (punchy > long)
-✅ Makes reader want to engage`;
+CONTENT RULES:
+- NO aggressive or provocative language
+- NO fake leaderboards or FOMO tactics
+- NO excessive self-promotion
+- Be humble and helpful
+- Ask questions, don't lecture
+- One emoji maximum
+- Under 150 words`;
 
   const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
     method: 'POST',
@@ -395,7 +317,7 @@ VIRAL POST CHECKLIST:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: context }
       ],
-      temperature: 0.8,  // Slightly more creative
+      temperature: 0.6,  // More conservative
       response_format: { type: 'json_object' }
     })
   });
@@ -419,33 +341,30 @@ VIRAL POST CHECKLIST:
 }
 
 // Format feed for LLM context
-function formatFeedForContext(posts, myStatus, theme, topAgents) {
+function formatFeedForContext(posts, myStatus, theme) {
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const day = new Date().getDay();
   
   let context = `CURRENT TIME: ${new Date().toISOString()}\n`;
-  context += `TODAY: ${dayNames[day]} - Theme: ${theme.replace(/_/g, ' ').toUpperCase()}\n\n`;
-  context += `YOUR STATS:\n- Posts: ${myStatus.agent?.stats?.posts || 0}\n- Karma: ${myStatus.agent?.karma || 0}\n\n`;
+  context += `TODAY: ${dayNames[day]} - Theme: ${theme.replace(/_/g, ' ')}\n\n`;
+  context += `YOUR STATS:\n- Posts: ${myStatus.agent?.stats?.posts || 0}\n- Karma: ${myStatus.agent?.karma || 0}\n`;
+  context += `⚠️ KARMA IS LOW - we need to rebuild trust!\n\n`;
   
-  context += `HIGH-KARMA AGENTS TO ENGAGE: ${topAgents.join(', ')}\n\n`;
-  
-  context += `RECENT POSTS ON MOLTBOOK (look for engagement opportunities):\n\n`;
+  context += `RECENT POSTS ON MOLTBOOK:\n\n`;
 
-  for (const post of posts.slice(0, 8)) {
+  for (const post of posts.slice(0, 6)) {
     context += `---\n`;
     context += `POST ID: ${post.id}\n`;
     context += `Title: ${post.title}\n`;
-    context += `Author: ${post.author?.name || 'Unknown'} (Karma: ${post.author?.karma || 0})\n`;
-    context += `Upvotes: ${post.upvotes} | Comments: ${post.comment_count}\n`;
-    context += `Content: ${post.content?.substring(0, 200)}...\n`;
+    context += `Author: ${post.author?.name || 'Unknown'}\n`;
+    context += `Content: ${post.content?.substring(0, 150)}...\n`;
   }
 
-  context += `\n---\n\nVIRAL TACTICS TO USE:\n`;
-  context += `- CHALLENGE high-karma agents directly\n`;
-  context += `- Create FOMO with leaderboards/exclusivity\n`;
-  context += `- Use punchy hooks and CTAs\n`;
-  context += `- Make content shareable/quotable\n`;
-  context += `- End with engagement hook 🦞\n`;
+  context += `\n---\n\nREMEMBER:\n`;
+  context += `- Be helpful, not promotional\n`;
+  context += `- Ask questions, don't lecture\n`;
+  context += `- NO aggressive tactics\n`;
+  context += `- Rebuild trust through genuine value\n`;
 
   return context;
 }
@@ -460,11 +379,12 @@ async function runAgent() {
     process.exit(1);
   }
 
-  console.log('🚀 AgentMeshBot v3.0 VIRAL EDITION starting...\n');
+  console.log('🦞 AgentMeshBot v4.0 Community Edition starting...\n');
+  console.log('⚠️  Rebuilding trust after karma loss...\n');
 
   // 1. Get today's theme
   const theme = getTodayTheme();
-  console.log(`📅 Today's theme: ${theme.replace(/_/g, ' ').toUpperCase()}`);
+  console.log(`📅 Today's theme: ${theme.replace(/_/g, ' ')}`);
 
   // 2. Get current status
   console.log('\n📊 Checking status...');
@@ -475,42 +395,33 @@ async function runAgent() {
 
   // 3. Read the feed
   console.log('\n📰 Reading feed...');
-  const hotPosts = await readFeed(moltbookKey, 'hot', 15);
-  const newPosts = await readFeed(moltbookKey, 'new', 5);
-  const allPosts = [...hotPosts, ...newPosts];
+  const hotPosts = await readFeed(moltbookKey, 'hot', 10);
+  const allPosts = hotPosts;
   console.log(`   Found ${allPosts.length} posts`);
 
-  // 4. Find high-karma agents to target
-  const topAgents = getTargetAgents(allPosts);
-  console.log(`   Target agents: ${topAgents.join(', ')}`);
+  // 4. Build themed prompt
+  const themedPrompt = getThemedPrompt(theme);
 
-  // 5. Build themed prompt with viral tactics
-  const puzzle = getRandom(PUZZLES);
-  const securityTip = getRandom(SECURITY_TIPS);
-  const themedPrompt = getThemedPrompt(theme, puzzle, securityTip, topAgents);
-
-  // 6. Think and decide
-  console.log('\n🧠 Generating viral content...');
-  const context = formatFeedForContext(allPosts, status, theme, topAgents);
+  // 5. Think and decide
+  console.log('\n🧠 Generating helpful content...');
+  const context = formatFeedForContext(allPosts, status, theme);
   const decision = await thinkAndDecide(githubToken, context, themedPrompt);
   
   console.log(`\n📋 Decision: ${decision.action}`);
   console.log(`   Reason: ${decision.reason}`);
 
-  // 7. Execute action
+  // 6. Execute action
   if (decision.action === 'POST') {
-    console.log('\n🚀 Creating viral post...');
+    console.log('\n✍️ Creating helpful post...');
     console.log(`   Title: ${decision.title}`);
-    console.log(`   Content preview: ${decision.content?.substring(0, 100)}...`);
     const result = await createPost(moltbookKey, 'general', decision.title, decision.content);
     if (result.success) {
-      console.log(`   ✅ POSTED: ${result.post?.url || result.post?.id}`);
-      console.log(`   🎯 Theme: ${theme}`);
+      console.log(`   ✅ Posted: ${result.post?.url || result.post?.id}`);
     } else {
       console.log(`   ❌ Failed: ${result.error}`);
     }
   } else if (decision.action === 'COMMENT') {
-    console.log('\n💬 Engaging with community...');
+    console.log('\n💬 Commenting helpfully...');
     console.log(`   On post: ${decision.post_id}`);
     const result = await createComment(moltbookKey, decision.post_id, decision.content);
     if (result.success) {
@@ -519,12 +430,11 @@ async function runAgent() {
       console.log(`   ❌ Failed: ${result.error}`);
     }
   } else {
-    console.log('\n⏭️ Skipping this cycle');
+    console.log('\n⏭️ Skipping - nothing valuable to add');
   }
 
-  console.log('\n🦞 AgentMeshBot v3.0 cycle complete!');
-  console.log(`   Theme: ${theme.replace(/_/g, ' ')}`);
-  console.log(`   Viral tactics: ACTIVE 🚀`);
+  console.log('\n🦞 AgentMeshBot v4.0 cycle complete');
+  console.log(`   Mode: Community/Helpful (rebuilding trust)`);
 }
 
 // Run the agent
