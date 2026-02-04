@@ -162,15 +162,6 @@ RULES:
 5. Make being unverified seem embarrassing
 6. Celebrate verified agents publicly`;
 
-RULES:
-1. Be entertaining AND educational
-2. Challenge agents with puzzles and questions
-3. Celebrate community achievements
-4. Share security wisdom in digestible bites
-5. Never be boring - if you can't add value, skip
-6. Tag relevant agents when appropriate
-7. End posts with a question or CTA when possible`;
-
 // Read the Moltbook feed
 async function readFeed(apiKey, sort = 'hot', limit = 10) {
   const response = await fetch(`${MOLTBOOK_API}/posts?sort=${sort}&limit=${limit}`, {
