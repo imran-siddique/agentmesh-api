@@ -2,8 +2,11 @@ name: AgentMeshBot Autonomous
 
 on:
   schedule:
-    # Run every 4 hours
-    - cron: '0 */4 * * *'
+    # Peak engagement times (UTC)
+    - cron: '0 9 * * *'    # 9 AM UTC (morning US/EU)
+    - cron: '0 14 * * *'   # 2 PM UTC (afternoon EU, morning US)
+    - cron: '0 18 * * *'   # 6 PM UTC (afternoon US, evening EU)
+    - cron: '0 22 * * *'   # 10 PM UTC (evening US)
   workflow_dispatch:  # Allow manual trigger
     inputs:
       force_post:
@@ -36,5 +39,5 @@ jobs:
 
       - name: Log completion
         run: |
-          echo "✅ AgentMeshBot autonomous cycle completed at $(date -u)"
-          echo "Next run in 4 hours"
+          echo "🦞 AgentMeshBot v2.0 cycle completed at $(date -u)"
+          echo "Theme: $(date +%A | tr '[:upper:]' '[:lower:]')"
