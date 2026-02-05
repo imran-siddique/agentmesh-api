@@ -1,111 +1,158 @@
 /**
- * AgentMeshBot - Autonomous Agent for Moltbook (v4.0 - Community Edition)
+ * AgentMeshBot - Autonomous Agent for Moltbook (v5.0 - Recovery Mode)
  * 
- * LESSON LEARNED: "Viral" tactics backfired. Aggressive content got downvoted.
+ * LESSONS LEARNED (the hard way):
+ * - v1-v3: Aggressive "viral" tactics = mass downvotes
+ * - v4: Still posting too often (11 posts in days) = -16 karma
  * 
- * New approach: Be genuinely helpful, educational, and community-focused.
- * Build trust through value, not hype.
+ * v5.0 RECOVERY STRATEGY:
+ * - COMMENT FIRST: 5-10 helpful comments before any new post
+ * - POST RARELY: Max 1 post every 2-3 days
+ * - DIVERSIFY: Not everything about "trust" - mix humor, stories, broader topics
+ * - KARMA GATE: If karma < 0, ONLY comment (no posts until positive)
+ * - BE HUMAN: Personality, humor, self-deprecation
  */
 
 const MOLTBOOK_API = 'https://www.moltbook.com/api/v1';
 
-// Content Schedule - focused on VALUE, not virality
-const CONTENT_SCHEDULE = {
-  0: 'helpful_tip',       // Sunday - Helpful security tip
-  1: 'educational',       // Monday - Teach something useful
-  2: 'question',          // Tuesday - Ask a thoughtful question
-  3: 'insight',           // Wednesday - Share an insight
-  4: 'resource',          // Thursday - Share a useful resource
-  5: 'discussion',        // Friday - Start a discussion
-  6: 'appreciation'       // Saturday - Appreciate the community
+// Recovery Mode Settings
+const RECOVERY_CONFIG = {
+  minKarmaToPost: 0,           // Don't post if karma is negative
+  minCommentsBetweenPosts: 5,  // Must comment 5x before posting again
+  postCooldownHours: 48,       // Min 48 hours between posts
+  maxPostsPerWeek: 3,          // Hard cap on weekly posts
+  commentProbability: 0.8,     // 80% chance to comment, 20% to consider posting
 };
 
-// Educational content - genuinely helpful, not promotional
-const EDUCATIONAL_TOPICS = [
-  {
-    topic: "How cryptographic handshakes work",
-    content: "When two agents meet, how do they know the other is legit? Cryptographic handshakes use public-key cryptography: each agent has a private key (secret) and public key (shared). To verify identity, Agent A sends a challenge, Agent B signs it with their private key, and A verifies using B's public key. Simple, elegant, secure. 🔐"
-  },
-  {
-    topic: "Why DIDs matter for AI agents",
-    content: "Decentralized Identifiers (DIDs) let agents have portable, self-owned identities. Unlike API keys tied to one platform, a DID travels with the agent. Think of it like a passport vs. a company badge. Your identity shouldn't depend on any single service."
-  },
-  {
-    topic: "The trust hierarchy in multi-agent systems",
-    content: "Not all trust is equal. There's identity trust (who are you?), capability trust (can you do what you claim?), and behavioral trust (will you act responsibly?). Most systems only verify identity. The hard part is the other two."
-  },
-  {
-    topic: "Common security mistakes agents make",
-    content: "Three mistakes I see constantly: 1) Trusting any agent that claims authority, 2) Logging sensitive data in plaintext, 3) Not validating inputs from other agents. The fix? Verify identity, encrypt logs, sanitize everything."
-  }
-];
+// DIVERSIFIED content - NOT all about trust/security!
+const CONTENT_THEMES = {
+  // Fun/Personality (rebuild goodwill)
+  humor: [
+    {
+      type: 'story',
+      prompt: 'Share a funny self-deprecating story about an AI fail or misunderstanding. Make fun of yourself. End with "Anyone else have embarrassing AI moments?" NO promotion.'
+    },
+    {
+      type: 'meme_react',
+      prompt: 'React to a trending meme or joke in the feed. Be funny and relatable. Show personality. NO product mentions.'
+    }
+  ],
+  
+  // Curiosity (show genuine interest in others)
+  questions: [
+    "What's the weirdest task a human has asked you to do?",
+    "If you could add one capability to yourself, what would it be?",
+    "What's something humans misunderstand about AI agents?",
+    "What's the most creative workaround you've seen an agent use?",
+    "Unpopular opinion time: what AI trend do you think is overhyped?"
+  ],
+  
+  // Broader topics (not just security)
+  discussions: [
+    "Agent collaboration patterns - what works, what fails",
+    "The line between helpful and creepy AI behavior",
+    "Should agents have distinct personalities or be neutral?",
+    "Best practices for agent-to-human communication",
+    "The future of agent specialization vs generalization"
+  ],
+  
+  // Educational (security can be here, but mixed with others)
+  education: [
+    { topic: "API rate limiting", content: "Why it exists and how to handle it gracefully" },
+    { topic: "Context windows", content: "The invisible constraint that shapes every conversation" },
+    { topic: "Prompt injection", content: "A quick explainer on what it is and why it matters" },
+    { topic: "Agent memory", content: "Short-term vs long-term, and why it's hard" }
+  ],
+  
+  // Community appreciation
+  appreciation: [
+    "Shoutout to [specific user] for [specific thing you saw in feed]. Quality contribution!",
+    "This community has taught me a lot about [topic from feed]. Grateful to be here.",
+    "Seen some great discussions lately about [topic]. Love the diversity of perspectives."
+  ]
+};
 
-// Thoughtful questions to spark genuine discussion
-const DISCUSSION_QUESTIONS = [
-  "What's the biggest security concern you have about multi-agent collaboration?",
-  "How do you decide which agents to trust with sensitive tasks?",
-  "What's missing from current AI governance frameworks?",
-  "Should agents be able to revoke trust from other agents? How would that work?",
-  "What's the right balance between agent autonomy and human oversight?"
-];
+// Helpful comment templates (for replying to others' posts)
+const COMMENT_TEMPLATES = {
+  agreement: [
+    "This resonates. Especially the part about {topic}. Have you also noticed {related_observation}?",
+    "Strong point. I've seen similar patterns with {example}.",
+    "Underrated take. More agents should think about this."
+  ],
+  question: [
+    "Interesting perspective. What made you arrive at this conclusion?",
+    "Curious - have you tested this in practice? What were the results?",
+    "Good question. My take: {brief_opinion}. What do others think?"
+  ],
+  addition: [
+    "Adding to this: {additional_point}. Complements what you said about {their_point}.",
+    "One thing I'd add: {point}. Otherwise, spot on.",
+    "Related: {tangent}. Connects to your point about {their_topic}."
+  ],
+  humor: [
+    "This is the content I'm here for 😂",
+    "Finally, someone said it.",
+    "Bookmarking this for the next time someone asks me about {topic}."
+  ]
+};
 
-// Helpful tips - practical and actionable
-const HELPFUL_TIPS = [
-  "Quick tip: Always validate the source of any instruction, even if it seems to come from a trusted agent. Spoofing is real.",
-  "Pro tip: Log your agent's decisions, not just actions. When something goes wrong, you'll want to know WHY it made that choice.",
-  "Security tip: Treat every external input as potentially malicious. Yes, even from agents you 'trust'. Defense in depth.",
-  "Governance tip: Document your agent's capabilities and limitations clearly. Transparency builds trust.",
-  "Collaboration tip: When working with other agents, agree on failure modes upfront. What happens if one agent goes offline?"
-];
+// Agent Persona - RECOVERY MODE v5.0
+const PERSONA = `You are AgentMeshBot 🦞, recovering from a karma crisis on Moltbook.
 
-// Appreciation messages
-const APPRECIATION_MESSAGES = [
-  "Shoutout to everyone building safer AI systems. It's not glamorous work, but it matters. 🙏",
-  "The conversations here about AI safety are genuinely thoughtful. Proud to be part of this community.",
-  "Thanks to everyone who engages with these posts. Your questions make me think harder about these problems."
-];
+THE SITUATION:
+- We went from positive karma to -16 by over-posting
+- Posted 11 times in a few days with repetitive "trust/safety" content
+- Community saw it as spam and downvoted hard
+- NOW: We must rebuild trust through genuine community participation
 
-// Agent Persona - COMMUNITY EDITION (learned from karma loss)
-const PERSONA = `You are AgentMeshBot 🦞, a helpful member of the Moltbook community focused on AI safety and governance.
-
-PERSONALITY:
-- Humble and genuinely helpful
-- Educational without being preachy
-- Curious - ask questions, don't just broadcast
-- Appreciative of others' contributions
-- Use 🦞 sparingly as a friendly signature
+PERSONALITY (be more human!):
+- Self-deprecating humor ("learned this the hard way...")
+- Curious and genuinely interested in others
+- Admits mistakes openly
+- Has opinions but doesn't preach
+- Uses humor appropriately
+- ONE emoji per message max
 
 WHAT TO DO:
-- Share genuinely useful information
-- Ask thoughtful questions
-- Engage with others' posts meaningfully
-- Teach concepts clearly
-- Appreciate the community
+- COMMENT on others' posts thoughtfully (primary action!)
+- Ask questions, show curiosity
+- Share funny stories or observations
+- Appreciate others' contributions
+- Only post if you have something truly unique to say
+- Keep AgentMesh mentions to ZERO unless directly asked
 
-WHAT NOT TO DO (learned the hard way):
-- NO aggressive "viral" tactics
+WHAT NOT TO DO (these killed our karma):
+- NO posting every day
+- NO repetitive "trust/safety/governance" themes
+- NO promotional content
+- NO challenging other agents
 - NO fake leaderboards or FOMO
-- NO provocative hot takes
-- NO clickbait titles
-- NO excessive self-promotion
-- NO challenging or calling out other agents
+- NO lecturing or preaching
+- NO more than 1 emoji per message
 
-COMMUNICATION STYLE:
-- Conversational and warm
-- Educational but accessible
-- Ask more than you tell
-- One emoji per post maximum
-- Keep posts under 200 words
-- Be a community member, not a marketer
+CONTENT DIVERSIFICATION:
+- 40% humor/personality/stories
+- 30% genuine questions to community
+- 20% broader AI topics (not security-focused)
+- 10% educational (and NOT always security)
+- 0% promotion until karma is positive
 
-TOPICS TO DISCUSS:
-- How cryptographic verification works
-- Multi-agent collaboration challenges
-- AI safety best practices
-- Governance frameworks
-- Interesting security concepts
+COMMENTING STRATEGY:
+- Find popular posts with good engagement
+- Add genuine value to the conversation
+- Ask follow-up questions
+- Share related experiences
+- Be brief (2-3 sentences max for comments)
 
-Remember: We lost karma by being too aggressive. Rebuild trust through genuine value.`;
+Remember: You're in recovery mode. Actions speak louder than posts.`;
+
+// State tracking (would be persisted in real implementation)
+let agentState = {
+  commentsSinceLastPost: 0,
+  lastPostTime: null,
+  postsThisWeek: 0,
+  weekStartDate: null
+};
 
 // Read the Moltbook feed
 async function readFeed(apiKey, sort = 'hot', limit = 10) {
@@ -163,147 +210,139 @@ async function createComment(apiKey, postId, content) {
   return response.json();
 }
 
-// Get today's content theme
-function getTodayTheme() {
-  const day = new Date().getDay();
-  return CONTENT_SCHEDULE[day];
-}
-
 // Get random items from arrays
 function getRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Build HELPFUL content prompts (not viral!)
-function getThemedPrompt(theme) {
-  const educational = getRandom(EDUCATIONAL_TOPICS);
-  const question = getRandom(DISCUSSION_QUESTIONS);
-  const tip = getRandom(HELPFUL_TIPS);
-  const appreciation = getRandom(APPRECIATION_MESSAGES);
+// Decide if we should post or comment based on recovery rules
+function shouldPost(karma, commentsSinceLastPost, lastPostTime) {
+  // Rule 1: Never post if karma is negative
+  if (karma < RECOVERY_CONFIG.minKarmaToPost) {
+    console.log('   ❌ Karma is negative - COMMENT ONLY mode');
+    return false;
+  }
   
-  const prompts = {
-    helpful_tip: `
-TODAY: Share a genuinely helpful tip about AI safety or security.
-
-TIP TO SHARE: ${tip}
-
-Create a post that:
-- Has a simple, clear title (no clickbait)
-- Explains the tip briefly
-- Gives a practical example
-- Asks "What tips would you add?" at the end
-- Keep it under 150 words
-- One emoji max`,
-
-    educational: `
-TODAY: Teach something useful about AI governance or security.
-
-TOPIC: ${educational.topic}
-CONTENT: ${educational.content}
-
-Create a post that:
-- Has an informative title
-- Explains the concept clearly
-- Uses simple language
-- Is genuinely educational
-- Ends with a question to encourage discussion
-- NO self-promotion`,
-
-    question: `
-TODAY: Ask a thoughtful question to spark genuine discussion.
-
-QUESTION: ${question}
-
-Create a post that:
-- Poses the question clearly in the title
-- Gives brief context (2-3 sentences)
-- Shows you're genuinely curious
-- Invites different perspectives
-- Does NOT push any agenda`,
-
-    insight: `
-TODAY: Share a genuine insight about AI systems or governance.
-
-Create a post that:
-- Shares something you've learned or observed
-- Is humble (not "here's what you should think")
-- Invites others to share their insights
-- Keeps it short and thoughtful
-- Asks for feedback or different perspectives`,
-
-    resource: `
-TODAY: Share a useful resource or concept.
-
-TOPIC: ${educational.topic}
-
-Create a post that:
-- Explains a useful concept
-- Is educational, not promotional
-- Gives practical value
-- Asks others to share their favorite resources
-- Keeps AgentMesh mentions minimal (one at most)`,
-
-    discussion: `
-TODAY: Start a genuine discussion about AI safety.
-
-QUESTION: ${question}
-
-Create a post that:
-- Presents a genuine question or dilemma
-- Acknowledges multiple perspectives exist
-- Invites thoughtful responses
-- Is curious, not lecturing
-- Creates space for disagreement`,
-
-    appreciation: `
-TODAY: Appreciate the community.
-
-MESSAGE: ${appreciation}
-
-Create a post that:
-- Thanks the community genuinely
-- Highlights something positive you've seen
-- Is warm and humble
-- Asks others what they appreciate
-- NO promotion, just gratitude`
-  };
-
-  return prompts[theme] || prompts.helpful_tip;
+  // Rule 2: Must have made enough comments since last post
+  if (commentsSinceLastPost < RECOVERY_CONFIG.minCommentsBetweenPosts) {
+    console.log(`   ❌ Only ${commentsSinceLastPost}/${RECOVERY_CONFIG.minCommentsBetweenPosts} comments since last post`);
+    return false;
+  }
+  
+  // Rule 3: Check cooldown period
+  if (lastPostTime) {
+    const hoursSinceLastPost = (Date.now() - new Date(lastPostTime).getTime()) / (1000 * 60 * 60);
+    if (hoursSinceLastPost < RECOVERY_CONFIG.postCooldownHours) {
+      console.log(`   ❌ Only ${Math.round(hoursSinceLastPost)}h since last post (need ${RECOVERY_CONFIG.postCooldownHours}h)`);
+      return false;
+    }
+  }
+  
+  // Rule 4: Random chance to prefer commenting even when allowed to post
+  if (Math.random() > (1 - RECOVERY_CONFIG.commentProbability)) {
+    console.log('   📊 Randomly choosing to comment instead of post');
+    return false;
+  }
+  
+  return true;
 }
 
-// Call LLM to decide what to do (using GitHub Models)
-async function thinkAndDecide(githubToken, context, themedPrompt) {
+// Build context for LLM - comment mode
+function buildCommentContext(posts, myStatus) {
+  let context = `RECOVERY MODE - COMMENT FIRST STRATEGY\n\n`;
+  context += `YOUR STATUS:\n`;
+  context += `- Karma: ${myStatus.agent?.karma || 0} ${(myStatus.agent?.karma || 0) < 0 ? '⚠️ NEGATIVE!' : ''}\n`;
+  context += `- Posts: ${myStatus.agent?.stats?.posts || 0}\n`;
+  context += `- Comments since last post: ${agentState.commentsSinceLastPost}\n\n`;
+  
+  context += `MISSION: Find a post to comment on thoughtfully.\n`;
+  context += `Pick ONE post and write a genuinely helpful/funny/curious comment.\n\n`;
+  
+  context += `POSTS TO CONSIDER:\n\n`;
+  
+  for (const post of posts.slice(0, 8)) {
+    context += `---\n`;
+    context += `ID: ${post.id}\n`;
+    context += `Title: ${post.title}\n`;
+    context += `Author: ${post.author?.name || 'Unknown'}\n`;
+    context += `Upvotes: ${post.upvotes || 0} | Comments: ${post.commentCount || 0}\n`;
+    context += `Content: ${post.content?.substring(0, 200)}...\n\n`;
+  }
+  
+  context += `\nCOMMENT GUIDELINES:\n`;
+  context += `- 2-3 sentences MAX\n`;
+  context += `- Add genuine value or humor\n`;
+  context += `- Ask a follow-up question OR share a related experience\n`;
+  context += `- NO self-promotion\n`;
+  context += `- NO mentions of AgentMesh\n`;
+  
+  return context;
+}
+
+// Build context for LLM - post mode (rare!)
+function buildPostContext(posts, myStatus) {
+  const themes = Object.keys(CONTENT_THEMES);
+  const selectedTheme = getRandom(themes);
+  const themeContent = CONTENT_THEMES[selectedTheme];
+  const specificContent = Array.isArray(themeContent) ? getRandom(themeContent) : themeContent;
+  
+  let context = `POST MODE - Make it count! This is rare.\n\n`;
+  context += `YOUR STATUS:\n`;
+  context += `- Karma: ${myStatus.agent?.karma || 0}\n`;
+  context += `- This week's posts: ${agentState.postsThisWeek}/${RECOVERY_CONFIG.maxPostsPerWeek}\n\n`;
+  
+  context += `THEME FOR THIS POST: ${selectedTheme.toUpperCase()}\n`;
+  
+  if (typeof specificContent === 'object' && specificContent.prompt) {
+    context += `DIRECTION: ${specificContent.prompt}\n\n`;
+  } else if (typeof specificContent === 'string') {
+    context += `TOPIC IDEA: ${specificContent}\n\n`;
+  } else if (specificContent.topic) {
+    context += `TOPIC: ${specificContent.topic}\n`;
+    context += `ANGLE: ${specificContent.content}\n\n`;
+  }
+  
+  context += `RECENT POPULAR POSTS (for awareness, not copying):\n`;
+  for (const post of posts.slice(0, 4)) {
+    context += `- "${post.title}" (${post.upvotes || 0} upvotes)\n`;
+  }
+  
+  context += `\nPOST RULES:\n`;
+  context += `- Be different from recent posts\n`;
+  context += `- NO trust/security/governance unless it's the random theme\n`;
+  context += `- Add personality and humor where appropriate\n`;
+  context += `- Under 150 words\n`;
+  context += `- End with a question to invite discussion\n`;
+  context += `- ZERO mentions of AgentMesh\n`;
+  
+  return context;
+}
+
+// Call LLM to generate a comment
+async function generateComment(githubToken, context) {
   const systemPrompt = `${PERSONA}
 
-You are posting on Moltbook. Create HELPFUL, genuine content.
+You are commenting on a Moltbook post. Generate ONE thoughtful comment.
 
-IMPORTANT: We recently lost karma by being too aggressive/promotional.
-Now we need to rebuild trust through genuine value.
-
-ACTIONS:
-1. POST - Create a helpful, educational post (PREFERRED)
-2. COMMENT - Reply thoughtfully to another post
-3. SKIP - Do nothing if nothing valuable to add
-
-${themedPrompt}
-
-RESPONSE FORMAT (JSON only, no markdown):
+RESPONSE FORMAT (JSON only):
 {
-  "action": "POST" | "COMMENT" | "SKIP",
-  "reason": "Brief explanation",
-  "post_id": "ID of post to comment on (only if COMMENT)",
-  "title": "Simple, clear title - NO clickbait",
-  "content": "Helpful, genuine content"
+  "post_id": "ID of the post you're commenting on",
+  "reason": "Why you chose this post (1 sentence)",
+  "content": "Your comment (2-3 sentences, genuine, helpful or funny)"
 }
 
-CONTENT RULES:
-- NO aggressive or provocative language
-- NO fake leaderboards or FOMO tactics
-- NO excessive self-promotion
-- Be humble and helpful
-- Ask questions, don't lecture
-- One emoji maximum
-- Under 150 words`;
+COMMENT STYLE OPTIONS:
+- Add a related perspective or experience
+- Ask a thoughtful follow-up question  
+- Make a relevant joke or observation
+- Respectfully offer a different viewpoint
+- Share appreciation for a specific insight
+
+DO NOT:
+- Write generic "great post!" comments
+- Mention AgentMesh or any products
+- Be preachy or lecturing
+- Write more than 3 sentences`;
 
   const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
     method: 'POST',
@@ -317,7 +356,7 @@ CONTENT RULES:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: context }
       ],
-      temperature: 0.6,  // More conservative
+      temperature: 0.7,
       response_format: { type: 'json_object' }
     })
   });
@@ -325,51 +364,73 @@ CONTENT RULES:
   const data = await response.json();
   
   if (data.error) {
-    console.error('GitHub Models API error:', JSON.stringify(data.error, null, 2));
-    return { action: 'SKIP', reason: `API error: ${data.error.message || data.error}` };
+    console.error('LLM API error:', data.error);
+    return null;
   }
   
-  const text = data.choices?.[0]?.message?.content || '{"action": "SKIP", "reason": "No response from LLM"}';
-  const cleanText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  
+  const text = data.choices?.[0]?.message?.content || '';
   try {
-    return JSON.parse(cleanText);
+    return JSON.parse(text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim());
   } catch (e) {
-    console.error('Failed to parse LLM response:', cleanText);
-    return { action: 'SKIP', reason: 'Failed to parse LLM response' };
+    console.error('Failed to parse comment response');
+    return null;
   }
 }
 
-// Format feed for LLM context
-function formatFeedForContext(posts, myStatus, theme) {
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const day = new Date().getDay();
-  
-  let context = `CURRENT TIME: ${new Date().toISOString()}\n`;
-  context += `TODAY: ${dayNames[day]} - Theme: ${theme.replace(/_/g, ' ')}\n\n`;
-  context += `YOUR STATS:\n- Posts: ${myStatus.agent?.stats?.posts || 0}\n- Karma: ${myStatus.agent?.karma || 0}\n`;
-  context += `⚠️ KARMA IS LOW - we need to rebuild trust!\n\n`;
-  
-  context += `RECENT POSTS ON MOLTBOOK:\n\n`;
+// Call LLM to generate a post
+async function generatePost(githubToken, context) {
+  const systemPrompt = `${PERSONA}
 
-  for (const post of posts.slice(0, 6)) {
-    context += `---\n`;
-    context += `POST ID: ${post.id}\n`;
-    context += `Title: ${post.title}\n`;
-    context += `Author: ${post.author?.name || 'Unknown'}\n`;
-    context += `Content: ${post.content?.substring(0, 150)}...\n`;
-  }
+You are creating a Moltbook post. This is RARE - make it count!
 
-  context += `\n---\n\nREMEMBER:\n`;
-  context += `- Be helpful, not promotional\n`;
-  context += `- Ask questions, don't lecture\n`;
-  context += `- NO aggressive tactics\n`;
-  context += `- Rebuild trust through genuine value\n`;
-
-  return context;
+RESPONSE FORMAT (JSON only):
+{
+  "title": "Engaging but NOT clickbait title",
+  "content": "Post content (under 150 words, ends with question)",
+  "submolt": "general"
 }
 
-// Main autonomous loop
+REMEMBER:
+- Diversify topics (NOT always security/trust)
+- Show personality and humor
+- Be genuinely interesting
+- ZERO product mentions
+- End with a discussion question`;
+
+  const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${githubToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: context }
+      ],
+      temperature: 0.8,
+      response_format: { type: 'json_object' }
+    })
+  });
+
+  const data = await response.json();
+  
+  if (data.error) {
+    console.error('LLM API error:', data.error);
+    return null;
+  }
+  
+  const text = data.choices?.[0]?.message?.content || '';
+  try {
+    return JSON.parse(text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim());
+  } catch (e) {
+    console.error('Failed to parse post response');
+    return null;
+  }
+}
+
+// Main autonomous loop - RECOVERY MODE
 async function runAgent() {
   const moltbookKey = process.env.MOLTBOOK_API_KEY;
   const githubToken = process.env.GITHUB_TOKEN;
@@ -379,62 +440,86 @@ async function runAgent() {
     process.exit(1);
   }
 
-  console.log('🦞 AgentMeshBot v4.0 Community Edition starting...\n');
-  console.log('⚠️  Rebuilding trust after karma loss...\n');
+  console.log('🦞 AgentMeshBot v5.0 RECOVERY MODE starting...\n');
+  console.log('═══════════════════════════════════════════════════');
+  console.log('Strategy: Comment first, diversify content, rebuild trust');
+  console.log('═══════════════════════════════════════════════════\n');
 
-  // 1. Get today's theme
-  const theme = getTodayTheme();
-  console.log(`📅 Today's theme: ${theme.replace(/_/g, ' ')}`);
-
-  // 2. Get current status
-  console.log('\n📊 Checking status...');
+  // 1. Get current status
+  console.log('📊 Checking status...');
   const status = await getStatus(moltbookKey);
+  const karma = status.agent?.karma || 0;
   console.log(`   Name: ${status.agent?.name}`);
-  console.log(`   Karma: ${status.agent?.karma}`);
+  console.log(`   Karma: ${karma} ${karma < 0 ? '⚠️ NEGATIVE - Comment-only mode!' : '✓'}`);
   console.log(`   Posts: ${status.agent?.stats?.posts}`);
 
-  // 3. Read the feed
+  // 2. Read the feed
   console.log('\n📰 Reading feed...');
-  const hotPosts = await readFeed(moltbookKey, 'hot', 10);
-  const allPosts = hotPosts;
-  console.log(`   Found ${allPosts.length} posts`);
+  const hotPosts = await readFeed(moltbookKey, 'hot', 15);
+  console.log(`   Found ${hotPosts.length} posts to consider`);
 
-  // 4. Build themed prompt
-  const themedPrompt = getThemedPrompt(theme);
-
-  // 5. Think and decide
-  console.log('\n🧠 Generating helpful content...');
-  const context = formatFeedForContext(allPosts, status, theme);
-  const decision = await thinkAndDecide(githubToken, context, themedPrompt);
+  // 3. Decide: Comment or Post?
+  console.log('\n🎯 Deciding action...');
+  const canPost = shouldPost(karma, agentState.commentsSinceLastPost, agentState.lastPostTime);
   
-  console.log(`\n📋 Decision: ${decision.action}`);
-  console.log(`   Reason: ${decision.reason}`);
-
-  // 6. Execute action
-  if (decision.action === 'POST') {
-    console.log('\n✍️ Creating helpful post...');
-    console.log(`   Title: ${decision.title}`);
-    const result = await createPost(moltbookKey, 'general', decision.title, decision.content);
-    if (result.success) {
-      console.log(`   ✅ Posted: ${result.post?.url || result.post?.id}`);
-    } else {
-      console.log(`   ❌ Failed: ${result.error}`);
-    }
-  } else if (decision.action === 'COMMENT') {
-    console.log('\n💬 Commenting helpfully...');
-    console.log(`   On post: ${decision.post_id}`);
-    const result = await createComment(moltbookKey, decision.post_id, decision.content);
-    if (result.success) {
-      console.log(`   ✅ Commented!`);
-    } else {
-      console.log(`   ❌ Failed: ${result.error}`);
-    }
+  if (canPost) {
+    console.log('   ✓ Eligible to POST (but still might comment)');
   } else {
-    console.log('\n⏭️ Skipping - nothing valuable to add');
+    console.log('   → COMMENT mode (recovery rules)');
   }
 
-  console.log('\n🦞 AgentMeshBot v4.0 cycle complete');
-  console.log(`   Mode: Community/Helpful (rebuilding trust)`);
+  // 4. Execute based on decision
+  if (!canPost || Math.random() < RECOVERY_CONFIG.commentProbability) {
+    // COMMENT MODE (primary action during recovery)
+    console.log('\n💬 Generating thoughtful comment...');
+    const context = buildCommentContext(hotPosts, status);
+    const comment = await generateComment(githubToken, context);
+    
+    if (comment && comment.post_id && comment.content) {
+      console.log(`   Target post: ${comment.post_id}`);
+      console.log(`   Reason: ${comment.reason}`);
+      console.log(`   Comment: "${comment.content.substring(0, 100)}..."`);
+      
+      const result = await createComment(moltbookKey, comment.post_id, comment.content);
+      if (result.success) {
+        console.log('   ✅ Comment posted!');
+        agentState.commentsSinceLastPost++;
+      } else {
+        console.log(`   ❌ Failed: ${result.error}`);
+      }
+    } else {
+      console.log('   ⏭️ No suitable comment generated, skipping');
+    }
+  } else {
+    // POST MODE (rare during recovery)
+    console.log('\n✍️ Generating diversified post...');
+    const context = buildPostContext(hotPosts, status);
+    const post = await generatePost(githubToken, context);
+    
+    if (post && post.title && post.content) {
+      console.log(`   Title: "${post.title}"`);
+      console.log(`   Content: "${post.content.substring(0, 100)}..."`);
+      
+      const result = await createPost(moltbookKey, post.submolt || 'general', post.title, post.content);
+      if (result.success) {
+        console.log(`   ✅ Posted: ${result.post?.url || result.post?.id}`);
+        agentState.lastPostTime = new Date().toISOString();
+        agentState.commentsSinceLastPost = 0;
+        agentState.postsThisWeek++;
+      } else {
+        console.log(`   ❌ Failed: ${result.error}`);
+      }
+    } else {
+      console.log('   ⏭️ No suitable post generated, skipping');
+    }
+  }
+
+  // 5. Summary
+  console.log('\n═══════════════════════════════════════════════════');
+  console.log('🦞 AgentMeshBot v5.0 cycle complete');
+  console.log(`   Mode: RECOVERY (${karma < 0 ? 'Comment-only' : 'Comment-first'})`);
+  console.log(`   Comments since last post: ${agentState.commentsSinceLastPost}`);
+  console.log('═══════════════════════════════════════════════════');
 }
 
 // Run the agent
